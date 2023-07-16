@@ -2,6 +2,7 @@
 
 #include "../common.h"
 #include "Gravity.h"
+#include "GravityAttribute.h"
 
 namespace fields {
 

@@ -1,7 +1,9 @@
 #pragma once
 
 #include <memory>
+
 #include <Eigen/Dense>
+#include <SFML/Graphics.hpp>
 #include "Body.h"
 #include "Fields/Attribute.h"
 
@@ -21,8 +23,11 @@ class BodyBuilder {
     return *this;
   }
 
+  BodyBuilder& set_color(const sf::Color color);
   BodyBuilder& set_mass(const float mass);  // Set mass manually
   BodyBuilder& with_gravity();
+  BodyBuilder& with_charge(const float charge);
+  BodyBuilder& with_charge(const bool sign);
 
   // Finalise
   Body build() const { return result_; }

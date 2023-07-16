@@ -11,7 +11,6 @@ class Attribute {
 };
 
 #define DEFINE_ATTRIBUTE_TYPE(FIELD_NAME) \
- public: \
   static const eAttributeType attr_type = e##FIELD_NAME##Type; \
   eAttributeType get_type() const override { return attr_type; } \
 

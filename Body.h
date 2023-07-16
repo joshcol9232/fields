@@ -58,7 +58,7 @@ class Body {
       throw std::runtime_error("Attribute not found in body - make sure to check beforehand.");
     }
 
-    return *it;
+    return dynamic_cast<const Attr&>(*(*it));
   }
 
   friend class BodyBuilder;
@@ -66,6 +66,7 @@ class Body {
   Vector2f x_;
   Vector2f v_;
   Vector2f force_;
+  sf::Color color_;
   float mass_;
   float radius_;
 

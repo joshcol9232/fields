@@ -18,7 +18,8 @@ Body::Body(Vector2f pos, Vector2f velocity, float radius) :
 
 Body::Body(Vector2f pos, Vector2f velocity,
            float radius, float mass) :
-  x_(pos), v_(velocity), mass_(mass), radius_(radius), force_(0.0, 0.0)
+  x_(pos), v_(velocity), mass_(mass), radius_(radius), force_(0.0, 0.0),
+  color_(sf::Color::White)
 {}
 
 void Body::step(const float dt) {
@@ -54,7 +55,7 @@ void Body::draw(sf::RenderWindow& window, sf::CircleShape& circle_mesh) const {
 
   circle_mesh.setScale(radius_, radius_);
   circle_mesh.setPosition(x_.x(), x_.y());
-  circle_mesh.setFillColor(sf::Color::White);
+  circle_mesh.setFillColor(color_);
   window.draw(circle_mesh);
 }
 
