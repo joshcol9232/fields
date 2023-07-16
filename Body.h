@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <type_traits>
+#include <stdexcept>
 
 #include <SFML/Graphics.hpp>
 #include <Eigen/Dense>
@@ -37,22 +38,28 @@ class Body {
   float get_mass() const { return mass_; }
   Vector2f displacement_to(const Body& other) const;
 
-  template<eAttributeType AttrType>
+  template<typename Attr>
   bool has_attribute() {
     for (const auto& attribute : attributes_) {
-      if (attribute->get_type() == AttrType) return true;
+      if (attribute->get_type() == Attr::attr_type) return true;
     }
     return false;
   }
 
   // WARNING: Only do this after checking there is an attribute
-  /*
   template<typename Attr>
   const Attr& get_attribute() {
-    auto it = std::find_if()
+    auto it = std::find_if(attributes_.begin(),
+                           attributes_.end(),
+                           [](const auto& attr) -> bool {
+                             return attr->get_type() == Attr::attr_type;
+                           });
+    if (it == attributes_.end()) {
+      throw std::runtime_error("Attribute not found in body - make sure to check beforehand.");
+    }
+
     return *it;
   }
-  */
 
   friend class BodyBuilder;
  private:

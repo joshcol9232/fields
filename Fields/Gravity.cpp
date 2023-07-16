@@ -7,7 +7,7 @@ namespace fields {
 
 void Gravity::apply_force(Body& a, Body& b) const {
   // If one of the bodies does not have a gravity component, exit with 0vec
-  if (!(a.has_attribute<eGravityType>() && b.has_attribute<eGravityType>()))
+  if (!(a.has_attribute<GravityAttribute>() && b.has_attribute<GravityAttribute>()))
     return;
 
   // Otherwise, has force

@@ -5,8 +5,8 @@
 namespace fields {
 
 // Type showing that this body has gravity. Body already has mass
-struct GravityAttribute : public Attribute {
-  eAttributeType get_type() const override { return eGravityType; }
+class GravityAttribute : public Attribute {
+  DEFINE_ATTRIBUTE_TYPE(Gravity)
 };
 
 }  // namespace fields
