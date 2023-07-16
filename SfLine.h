@@ -8,7 +8,7 @@
 class SfLine : public sf::Drawable {
 public:
     SfLine(const sf::Vector2f& point1, const sf::Vector2f& point2,
-           const sf::Color color = sf::Color::Red,
+           const sf::Color color = sf::Color::Green,
            const float thickness = 2.0) :
         vertices()
     {

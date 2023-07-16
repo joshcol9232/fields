@@ -29,7 +29,7 @@ BodyBuilder& BodyBuilder::with_gravity() {
 BodyBuilder& BodyBuilder::with_charge(const float charge) {
   std::cout << "making with charge..." << std::endl;
   set_color(std::signbit(charge) ? sf::Color::Yellow : sf::Color::Red);
-  with_attribute<fields::ChargeAttribute>(charge);
+  with_attribute<fields::ChargeAttribute>(charge * result_.mass_);
   return *this;
 }
 

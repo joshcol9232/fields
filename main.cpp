@@ -14,6 +14,7 @@
 #include "Fields/Charge.h"
 
 using Eigen::Vector2f;
+constexpr float SPAWN_RADIUS = 10.0;
 
 // Utils
 namespace {
@@ -30,8 +31,8 @@ void spawn_square_of_bodies(
 ) {
   for (size_t i = 0; i < w; ++i) {
     for (size_t j = 0; j < h; ++j) {
-      BodyBuilder builder = BodyBuilder(Vector2f(top_left.x() + static_cast<float>(i) * rad * 2.0 + 0.01,
-                                                 top_left.y() + static_cast<float>(j) * rad * 2.0 + 0.01),
+      BodyBuilder builder = BodyBuilder(Vector2f(top_left.x() + static_cast<float>(i) * rad * 2.0 + 0.02,
+                                                 top_left.y() + static_cast<float>(j) * rad * 2.0 + 0.02),
                                         v,
                                         rad + 1.0);
 
@@ -45,9 +46,10 @@ void spawn_square_of_bodies(
 void start_state(std::vector<Body>& bodies) {
   bodies.clear();
 
-  spawn_square_of_bodies(bodies, Vector2f(100.0, 100.0), Vector2f::Zero(), 10, 10, 20.0,
+  spawn_square_of_bodies(bodies, Vector2f(100.0, 100.0), Vector2f::Zero(), 10, 10, SPAWN_RADIUS,
                          [](size_t i, size_t j, BodyBuilder& builder) {
-                           builder.with_charge(static_cast<bool>((i + j) & 1));
+                           builder.with_charge(static_cast<bool>((i + j) & 1))
+                                  .with_gravity();
                          });
 }
 
@@ -149,6 +151,7 @@ int main() {
   bool renderForce = false;
 
   std::cout << "Starting loop!" << std::endl;
+
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -165,13 +168,13 @@ int main() {
         dragging = false;
 
         // Spawn planet with velocity
-        constexpr float mouse_rad = 10.0;
         const auto drag = mouse_start_pos - curr_mouse_press_pos;
         Body b = BodyBuilder(Vector2f(mouse_start_pos.x, mouse_start_pos.y),
                              Vector2f(drag.x, drag.y) * 5.0,
-                             mouse_rad)
-                   .set_mass(tools::volume_of_sphere(mouse_rad) * PLANET_DENSITY * 5.0)
+                             SPAWN_RADIUS)
+                   .set_mass(tools::volume_of_sphere(SPAWN_RADIUS) * PLANET_DENSITY * 5.0)
                    .with_charge(event.mouseButton.button == sf::Mouse::Left)
+                   .with_gravity()
                    .build();
 
         bodies.emplace_back(b);
@@ -243,7 +246,7 @@ int main() {
     }
 
     // Overlap passes
-    for (size_t o = 0; o < 2; ++o) {
+    for (size_t o = 0; o < 8; ++o) {
       eliminate_crossover(bodies);
     }
     // Process collisions
