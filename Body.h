@@ -1,7 +1,14 @@
 #pragma once
 
+#include <iostream>
+#include <memory>
+#include <vector>
+#include <type_traits>
+
 #include <SFML/Graphics.hpp>
 #include <Eigen/Dense>
+
+#include "Fields/Attribute.h"
 
 using Eigen::Vector2f;
 
@@ -30,10 +37,30 @@ class Body {
   float get_mass() const { return mass_; }
   Vector2f displacement_to(const Body& other) const;
 
+  template<eAttributeType AttrType>
+  bool has_attribute() {
+    for (const auto& attribute : attributes_) {
+      if (attribute->get_type() == AttrType) return true;
+    }
+    return false;
+  }
+
+  // WARNING: Only do this after checking there is an attribute
+  /*
+  template<typename Attr>
+  const Attr& get_attribute() {
+    auto it = std::find_if()
+    return *it;
+  }
+  */
+
+  friend class BodyBuilder;
  private:
   Vector2f x_;
   Vector2f v_;
   Vector2f force_;
   float mass_;
   float radius_;
+
+  std::vector<std::shared_ptr<fields::Attribute>> attributes_;
 };

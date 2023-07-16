@@ -8,6 +8,9 @@
 #include "common.h"
 #include "tools.h"
 #include "Body.h"
+#include "BodyBuilder.h"
+
+#include "Fields/Gravity.h"
 
 using Eigen::Vector2f;
 
@@ -24,10 +27,14 @@ void spawn_square_of_bodies(
 ) {
   for (size_t i = 0; i < w; ++i) {
     for (size_t j = 0; j < h; ++j) {
-      bodies.emplace_back(Vector2f(top_left.x() + static_cast<float>(i) * rad * 2.0 + 0.01,
-                                   top_left.y() + static_cast<float>(j) * rad * 2.0 + 0.01),
-                          v,
-                          rad + 1.0);
+      Body b = BodyBuilder(Vector2f(top_left.x() + static_cast<float>(i) * rad * 2.0 + 0.01,
+                                    top_left.y() + static_cast<float>(j) * rad * 2.0 + 0.01),
+                           v,
+                           rad + 1.0)
+                 .with_gravity()
+                 .build();
+
+      bodies.push_back(b);   
     }
   }
 }
@@ -45,6 +52,8 @@ void move_camera(auto& window, auto& main_camera, const float dx, const float dy
 }
 
 void eliminate_crossover(std::vector<Body>& bodies) {
+  if (bodies.size() < 1) [[unlikely]] return;
+
   Vector2f dist_vec;
   float dist;
   Body *a = &bodies[0];
@@ -65,6 +74,8 @@ void eliminate_crossover(std::vector<Body>& bodies) {
 }
 
 void process_elastic_coll(std::vector<Body>& bodies, const float dt) {
+  if (bodies.size() < 1) [[unlikely]] return;
+
   Vector2f dist_vec;
   float dist;
   Body *a = &bodies[0];
@@ -79,9 +90,6 @@ void process_elastic_coll(std::vector<Body>& bodies, const float dt) {
       dist = dist_vec.norm();
       // Process collisions
       if (dist < a->get_radius() + b->get_radius()) {
-        std::cout << i << ", " << j << std::endl;
-        std::cout << "Dist: " << dist << std::endl;
-        std::cout << "COLLIDING! " << std::endl;
         a->elastic_collide_with(*b, dist, dt);
       }
     }
@@ -95,6 +103,7 @@ int main() {
 
   std::vector<Body> bodies;
   start_state(bodies);
+  std::cout << "start state made." << std::endl;
 
   // Create assets
   sf::CircleShape body_shape(1.0f, 200);
@@ -119,6 +128,9 @@ int main() {
 
   std::cout << "BODY NUM: " << bodies.size() << std::endl;
 
+  // Make fields!
+  fields::Gravity gravity_field;
+
   // create the window
   sf::RenderWindow window(sf::VideoMode(static_cast<int>(SCREEN_WIDTH),
                                         static_cast<int>(SCREEN_HEIGHT)),
@@ -130,6 +142,7 @@ int main() {
 
   bool renderForce = false;
 
+  std::cout << "Starting loop!" << std::endl;
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
@@ -201,16 +214,16 @@ int main() {
     // if (cam_move_right) move_camera(window, main_camera,  600.0,    0.0, dt);
 
     // -- Update physics --
-    /*
+
+    // Update fields
     for (size_t i = 0; i < bodies.size()-1; ++i) {
       Body& a = bodies[i];
       for (size_t j = i+1; j < bodies.size(); ++j) {
         Body& b = bodies[j];
         
-        // TODO: Apply field rules.
+        gravity_field.apply_force(a, b);
       }
     }
-    */
 
     // Euler step
     for (auto& body : bodies) {

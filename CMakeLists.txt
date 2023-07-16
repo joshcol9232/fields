@@ -10,7 +10,11 @@ find_package (SFML REQUIRED system window graphics network audio)
 
 add_executable(orbits_port main.cpp
                Body.h Body.cpp
-               tools.h tools.cpp)
+               BodyBuilder.h BodyBuilder.cpp
+               tools.h tools.cpp
+               Fields/AttributeType.h
+               Fields/Attribute.h
+               Fields/Gravity.h Fields/Gravity.cpp Fields/GravityAttribute.h)
 
 target_link_libraries (orbits_port PRIVATE sfml-audio sfml-graphics sfml-network sfml-system Eigen3::Eigen)
 
