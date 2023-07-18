@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../Body.h"
 #include "Field.h"
+#include "ChargeAttribute.h"
 
 namespace fields {
 
-class Charge : public Field {
+class Charge : public Field<ChargeAttribute> {
  public:
-  void apply_force(Body& a, Body& b) const;
+  Charge();
 };
 
 }  // namespace fields

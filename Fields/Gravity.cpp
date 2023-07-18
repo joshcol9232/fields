@@ -1,24 +1,22 @@
-#include <iostream>
+#include <Eigen/Dense>
 
 #include "../common.h"
 #include "Gravity.h"
-#include "GravityAttribute.h"
 
 namespace fields {
 
-void Gravity::apply_force(Body& a, Body& b) const {
-  // If one of the bodies does not have a gravity component, exit with 0vec
-  if (!(a.has_attribute<GravityAttribute>() && b.has_attribute<GravityAttribute>()))
-    return;
+using Eigen::Vector2f;
 
-  // Otherwise, has force
-  Vector2f force = a.displacement_to(b);
-  const float distance = force.norm();
-  force *= G * a.get_mass() * b.get_mass() / (distance*distance*distance);
-  
-  a.apply_force(force);
-  b.apply_force(-force);
-}
+Gravity::Gravity() :
+  Field([](const Body& a, const Body& b,
+           const GravityAttribute&, const GravityAttribute&) -> Vector2f
+        {
+          Vector2f force = a.displacement_to(b);
+          const float distance = force.norm();
+          force *= G * a.get_mass() * b.get_mass() / (distance*distance*distance);
+          return force; 
+        })
+{}
 
 }  // fields
 

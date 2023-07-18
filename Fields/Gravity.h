@@ -1,16 +1,13 @@
 #pragma once
 
-#include <Eigen/Dense>
-#include "../Body.h"
-
-// Pre-declaration
-//class Body;
+#include "Field.h"
+#include "GravityAttribute.h"
 
 namespace fields {
 
-class Gravity {
+class Gravity : public Field<GravityAttribute> {
  public:
-  void apply_force(Body& a, Body& b) const;
+  Gravity();
 };
 
 }  // namespace fields

@@ -10,6 +10,7 @@
 #include "Body.h"
 #include "BodyBuilder.h"
 
+#include "Fields/Field.h"
 #include "Fields/Gravity.h"
 #include "Fields/Charge.h"
 
@@ -48,7 +49,8 @@ void start_state(std::vector<Body>& bodies) {
 
   spawn_square_of_bodies(bodies, Vector2f(100.0, 100.0), Vector2f::Zero(), 15, 15, SPAWN_RADIUS,
                          [](size_t i, size_t j, BodyBuilder& builder) {
-                           builder.with_charge(static_cast<bool>((i + j) & 1))
+                           builder
+                                  //.with_charge(static_cast<bool>((i + j) & 1));
                                   .with_gravity();
                          });
 }
@@ -234,8 +236,6 @@ int main() {
       Body& a = bodies[i];
       for (size_t j = i+1; j < bodies.size(); ++j) {
         Body& b = bodies[j];
-        
-
         gravity_field.apply_force(a, b);
         electric_field.apply_force(a, b);
       }
