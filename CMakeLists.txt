@@ -15,6 +15,7 @@ add_executable(orbits_port main.cpp
                Fields/AttributeType.h
                Fields/AttributeType.cpp
                Fields/Attribute.h
+               Fields/Field.h
                Fields/Gravity.h Fields/Gravity.cpp Fields/GravityAttribute.h
                Fields/Charge.h Fields/Charge.cpp Fields/ChargeAttribute.h)
 

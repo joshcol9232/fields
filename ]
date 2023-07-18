@@ -1,0 +1,40 @@
+#pragma once
+
+#include <Eigen/Dense>
+#include "../Body.h"
+
+namespace fields {
+
+class Field {
+ public:
+  template<typename Functor, typename Attribute, typename... Args>
+  void apply_force(Body& a, Body& b, const Functor& F) const;
+};
+
+
+// NOTE: Functor must have signature Vector2f F(Body&, Body&, Attribute&, Attribute&)
+template<typename Functor, typename Attribute, typename... Args>
+void Field::apply_force(Body& a, Body& b, const Functor& F) {
+    // If one of the bodies does not have a gravity component, exit with 0vec
+    if (!(a.has_attribute<Attribute>() && b.has_attribute<Attribute>()))
+      return;
+
+    const auto attribute_a = a.get_attribute<Attribute>();
+    const auto attribute_b = b.get_attribute<Attribute>();
+    const Vector2f force = F(a, b, attribute_a, attribute_b);
+
+    /*
+    // COULOMBS LAW
+    const bool attractive = std::signbit(charge_a) ^ std::signbit(charge_b); // XOR
+    const float modifier = static_cast<float>(attractive) * 2.0 - 1.0;
+
+    const Vector2f dist_vec = a.displacement_to(b);
+    const float distance = dist_vec.norm();
+    const Vector2f force = dist_vec * modifier * COULOMB / (distance * distance * distance);
+    */
+
+    a.apply_force(force);
+    b.apply_force(-force);
+  }
+
+}  // namespace fields

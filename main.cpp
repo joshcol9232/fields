@@ -14,7 +14,7 @@
 #include "Fields/Charge.h"
 
 using Eigen::Vector2f;
-constexpr float SPAWN_RADIUS = 10.0;
+constexpr float SPAWN_RADIUS = 7.0;
 
 // Utils
 namespace {
@@ -31,8 +31,8 @@ void spawn_square_of_bodies(
 ) {
   for (size_t i = 0; i < w; ++i) {
     for (size_t j = 0; j < h; ++j) {
-      BodyBuilder builder = BodyBuilder(Vector2f(top_left.x() + static_cast<float>(i) * rad * 2.0 + 0.02,
-                                                 top_left.y() + static_cast<float>(j) * rad * 2.0 + 0.02),
+      BodyBuilder builder = BodyBuilder(Vector2f(top_left.x() + static_cast<float>(i) * rad * 2.0,
+                                                 top_left.y() + static_cast<float>(j) * rad * 2.0),
                                         v,
                                         rad + 1.0);
 
@@ -46,7 +46,7 @@ void spawn_square_of_bodies(
 void start_state(std::vector<Body>& bodies) {
   bodies.clear();
 
-  spawn_square_of_bodies(bodies, Vector2f(100.0, 100.0), Vector2f::Zero(), 10, 10, SPAWN_RADIUS,
+  spawn_square_of_bodies(bodies, Vector2f(100.0, 100.0), Vector2f::Zero(), 15, 15, SPAWN_RADIUS,
                          [](size_t i, size_t j, BodyBuilder& builder) {
                            builder.with_charge(static_cast<bool>((i + j) & 1))
                                   .with_gravity();
@@ -235,6 +235,7 @@ int main() {
       for (size_t j = i+1; j < bodies.size(); ++j) {
         Body& b = bodies[j];
         
+
         gravity_field.apply_force(a, b);
         electric_field.apply_force(a, b);
       }
@@ -246,7 +247,7 @@ int main() {
     }
 
     // Overlap passes
-    for (size_t o = 0; o < 8; ++o) {
+    for (size_t o = 0; o < 2; ++o) {
       eliminate_crossover(bodies);
     }
     // Process collisions
