@@ -39,7 +39,7 @@ class Body {
   Vector2f displacement_to(const Body& other) const;
 
   template<typename Attr>
-  bool has_attribute() {
+  bool has_attribute() const {
     for (const auto& attribute : attributes_) {
       if (attribute->get_type() == Attr::attr_type) return true;
     }
@@ -48,7 +48,7 @@ class Body {
 
   // WARNING: Only do this after checking there is an attribute
   template<typename Attr>
-  const Attr& get_attribute() {
+  const Attr& get_attribute() const {
     auto it = std::find_if(attributes_.begin(),
                            attributes_.end(),
                            [](const auto& attr) -> bool {
