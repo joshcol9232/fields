@@ -22,7 +22,7 @@ class Body {
 
   // -- Rendering --
   void draw(sf::RenderWindow& window, sf::CircleShape& circle_mesh) const;
-  void render_force(sf::RenderTarget &target) const;
+  void render_acc(sf::RenderTarget &target) const;
 
   // -- Physics --
   void step(const float dt);

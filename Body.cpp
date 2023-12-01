@@ -59,7 +59,10 @@ void Body::draw(sf::RenderWindow& window, sf::CircleShape& circle_mesh) const {
   window.draw(circle_mesh);
 }
 
-void Body::apply_force(const Vector2f& df) { force_ += df; }
+void Body::apply_force(const Vector2f& df) {
+  // #pragma omp atomic
+  force_ += df;
+}
 
 Vector2f Body::displacement_to(const Body& other) const {
   return other.x_ - x_;
@@ -117,10 +120,10 @@ void Body::correct_overlap_with(Body& other, const float distance) {
   other.x_ -= half_dx;
 }
 
-void Body::render_force(sf::RenderTarget &target) const {
+void Body::render_acc(sf::RenderTarget &target) const {
   sf::Vector2f start(x_.x(), x_.y());
   sf::Vector2f force_sfvec(force_.x(), force_.y());
-  force_sfvec *= FORCE_DEBUG_MUL;
+  force_sfvec *= FORCE_DEBUG_MUL / mass_;
 
   const SfLine line(start, start + force_sfvec);
   target.draw(line);
