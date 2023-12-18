@@ -116,10 +116,10 @@ void start_state(std::vector<Body>& bodies) {
 
   // --- planets ---
   constexpr float orbit_range[2] = {150.0, 300.0};
-  constexpr float   rad_range[2] = {0.5, 5.0}; // {1.0  , 5.0  };
-  constexpr size_t           num = 300;
+  constexpr float   rad_range[2] = {0.5, 3.0};
+  constexpr size_t           num = 500;
   spawn_planet_with_moons(bodies, Vector2f(SCREEN_WIDTH/2, SCREEN_HEIGHT/2),
-                          Vector2f::Zero(), 100.0, num, orbit_range,
+                          Vector2f::Zero(), 50.0, num, orbit_range,
                           rad_range, true);
 }
 
@@ -247,11 +247,12 @@ int main() {
 
     // --- Mouse ---
     const bool left = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-    if (left || sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+    const bool right = sf::Mouse::isButtonPressed(sf::Mouse::Right);
+    if (!dragging && (left || right)) {
       dragging = true;
       mouse_start_pos = sf::Mouse::getPosition(window);
       mouse_button_held = left ? sf::Mouse::Left : sf::Mouse::Right;
-    } else if (dragging) {   // If not pressed, and previously was then spawn a planet.
+    } else if (dragging && !(left || right)) {   // If not pressed, and previously was then spawn a planet.
       dragging = false;
 
       // Spawn planet with velocity
