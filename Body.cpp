@@ -112,12 +112,14 @@ void Body::correct_overlap_with(Body& other, const float distance) {
   //        
 
   const Vector2f norm = (other.x_ - x_) / distance;  // Normal to collision
-  const float overlap = distance - radius_ - other.radius_;
-  // Amount of overlap:
-  const Vector2f half_dx = 0.5 * overlap * norm;
-  // Each needs to be shifted by 1/2 dx r_hat
-  x_ += half_dx;
-  other.x_ -= half_dx;
+  // Here, calculate the overlap (dx) between the bodies. Both need to move apart by this amount.
+  // Should conserve centre of mass though. Hence needs weighting, not just moving by 0.5 * dx.
+  const Vector2f overlap_vec = norm * (distance - radius_ - other.radius_);
+
+  // const Vector2f half_dx = 0.5 * overlap * norm;
+  const float alpha = other.mass_ / (other.mass_ + mass_);
+  x_ += alpha * overlap_vec;
+  other.x_ -= (1.0 - alpha) * overlap_vec;
 }
 
 void Body::render_acc(sf::RenderTarget &target) const {

@@ -39,27 +39,11 @@ class Body {
   Vector2f displacement_to(const Body& other) const;
 
   template<typename Attr>
-  bool has_attribute() const {
-    for (const auto& attribute : attributes_) {
-      if (attribute->get_type() == Attr::attr_type) return true;
-    }
-    return false;
-  }
+  bool has_attribute() const;
 
   // WARNING: Only do this after checking there is an attribute
   template<typename Attr>
-  const Attr& get_attribute() const {
-    auto it = std::find_if(attributes_.begin(),
-                           attributes_.end(),
-                           [](const auto& attr) -> bool {
-                             return attr->get_type() == Attr::attr_type;
-                           });
-    if (it == attributes_.end()) {
-      throw std::runtime_error("Attribute not found in body - make sure to check beforehand.");
-    }
-
-    return dynamic_cast<const Attr&>(*(*it));
-  }
+  const Attr& get_attribute() const;
 
   friend class BodyBuilder;
  private:
@@ -72,3 +56,27 @@ class Body {
 
   std::vector<std::shared_ptr<fields::Attribute>> attributes_;
 };
+
+
+template<typename Attr>
+bool Body::has_attribute() const {
+  for (const auto& attribute : attributes_) {
+    if (attribute->get_type() == Attr::attr_type) return true;
+  }
+  return false;
+}
+
+template<typename Attr>
+const Attr& Body::get_attribute() const {
+  auto it = std::find_if(attributes_.begin(),
+                         attributes_.end(),
+                         [](const auto& attr) -> bool {
+                           return attr->get_type() == Attr::attr_type;
+                         });
+  if (it == attributes_.end()) {
+    throw std::runtime_error("Attribute not found in body - make sure to check beforehand.");
+  }
+
+  return dynamic_cast<const Attr&>(*(*it));
+}
+

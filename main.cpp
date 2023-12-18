@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <vector>
 #include <random>
@@ -104,9 +105,8 @@ void start_state(std::vector<Body>& bodies) {
                                   .with_gravity();
                          });
   */
-
   /*
-  spawn_square_of_bodies(bodies, Vector2f(150.0, 150.0), Vector2f::Zero(), 7, 7, 30.0,
+  spawn_square_of_bodies(bodies, Vector2f(150.0, 150.0), Vector2f::Zero(), 25, 25, 10.0,
                          [](size_t i, size_t j, BodyBuilder& builder) {
                            builder
                                   //.with_charge(static_cast<bool>((i + j) & 1));
@@ -116,8 +116,8 @@ void start_state(std::vector<Body>& bodies) {
 
   // --- planets ---
   constexpr float orbit_range[2] = {150.0, 300.0};
-  constexpr float   rad_range[2] = {0.25, 2.0}; // {1.0  , 5.0  };
-  constexpr size_t           num = 500;
+  constexpr float   rad_range[2] = {0.5, 5.0}; // {1.0  , 5.0  };
+  constexpr size_t           num = 300;
   spawn_planet_with_moons(bodies, Vector2f(SCREEN_WIDTH/2, SCREEN_HEIGHT/2),
                           Vector2f::Zero(), 100.0, num, orbit_range,
                           rad_range, true);
@@ -228,6 +228,9 @@ int main() {
   // Render acceleration?
   bool renderAcc = false;
 
+  std::random_device rd;
+  std::mt19937 e2(rd());
+
   std::cout << "Starting loop!" << std::endl;
 
   //#pragma omp parallel
@@ -235,62 +238,39 @@ int main() {
   {
   while (window.isOpen()) {
     sf::Event event;
-    while (window.pollEvent(event)) {
+    if (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         window.close();
       }
+    }
 
-      // --- Mouse ---
-      if (event.type == sf::Event::MouseButtonPressed) {
-        dragging = true;
-        mouse_start_pos = sf::Mouse::getPosition(window);
-      }
-      if (event.type == sf::Event::MouseButtonReleased) {
-        dragging = false;
+    // --- Mouse ---
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+      dragging = true;
+      mouse_start_pos = sf::Mouse::getPosition(window);
+    } else if (dragging) {   // If not pressed, and previously was then spawn a planet.
+      dragging = false;
 
-        // Spawn planet with velocity
-        const auto drag = mouse_start_pos - curr_mouse_press_pos;
-        Body b = BodyBuilder(Vector2f(mouse_start_pos.x, mouse_start_pos.y),
-                             Vector2f(drag.x, drag.y) * 5.0,
-                             SPAWN_RADIUS)
-                   .set_mass(tools::volume_of_sphere(SPAWN_RADIUS) * PLANET_DENSITY * 5.0)
-                   .with_charge(event.mouseButton.button == sf::Mouse::Left)
-                   .with_gravity()
-                   .build();
+      // Spawn planet with velocity
+      const auto drag = mouse_start_pos - curr_mouse_press_pos;
+      Body b = BodyBuilder(Vector2f(mouse_start_pos.x, mouse_start_pos.y),
+                           Vector2f(drag.x, drag.y) * 5.0,
+                           SPAWN_RADIUS)
+                 .set_mass(tools::volume_of_sphere(SPAWN_RADIUS) * PLANET_DENSITY * 5.0)
+                 .with_charge(event.mouseButton.button == sf::Mouse::Left)
+                 .with_gravity()
+                 .build();
 
-        bodies.emplace_back(b);
-      }
-      // -------------
-      // --- Keyboard ---
-      if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::R) {
-          start_state(bodies);
-        } else if (event.key.code == sf::Keyboard::C) {
-          bodies.clear();
-        } else if (event.key.code == sf::Keyboard::F) {
-          renderAcc = !renderAcc;
-        }
-        // --- CAMERA ---
-        cam_move_up    = event.key.code == sf::Keyboard::W;
-        cam_move_left  = event.key.code == sf::Keyboard::A;
-        cam_move_down  = event.key.code == sf::Keyboard::S;
-        cam_move_right = event.key.code == sf::Keyboard::D;
-        // --------------
-      } else if (event.type == sf::Event::KeyReleased) {
-        // --- CAMERA ---
-        if (event.key.code == sf::Keyboard::W) {
-          cam_move_up = false;
-        } else if (event.key.code == sf::Keyboard::A) {
-          cam_move_left = false;
-        } else if (event.key.code == sf::Keyboard::S) {
-          cam_move_down = false;
-        } else if (event.key.code == sf::Keyboard::D) {
-          cam_move_right = false;
-        }
-        // --------------
-      }
-
-      // ----------------
+      bodies.emplace_back(b);
+    }
+    // -------------
+    // --- Keyboard ---
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+      start_state(bodies);
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+      bodies.clear();
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
+      renderAcc = !renderAcc;
     }
 
     // Mouse drag
