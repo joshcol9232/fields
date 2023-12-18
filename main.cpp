@@ -204,6 +204,7 @@ int main() {
 
   // Mouse
   bool dragging = false;
+  auto mouse_button_held = sf::Mouse::Left;
   sf::Vector2i mouse_start_pos, curr_mouse_press_pos;
   sf::Vertex drag_line[2];
 
@@ -236,8 +237,8 @@ int main() {
   //#pragma omp parallel
   //#pragma omp master
   {
+  sf::Event event;
   while (window.isOpen()) {
-    sf::Event event;
     if (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         window.close();
@@ -245,9 +246,11 @@ int main() {
     }
 
     // --- Mouse ---
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+    const bool left = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+    if (left || sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
       dragging = true;
       mouse_start_pos = sf::Mouse::getPosition(window);
+      mouse_button_held = left ? sf::Mouse::Left : sf::Mouse::Right;
     } else if (dragging) {   // If not pressed, and previously was then spawn a planet.
       dragging = false;
 
@@ -257,7 +260,7 @@ int main() {
                            Vector2f(drag.x, drag.y) * 5.0,
                            SPAWN_RADIUS)
                  .set_mass(tools::volume_of_sphere(SPAWN_RADIUS) * PLANET_DENSITY * 5.0)
-                 .with_charge(event.mouseButton.button == sf::Mouse::Left)
+                 .with_charge(mouse_button_held == sf::Mouse::Left)
                  .with_gravity()
                  .build();
 
