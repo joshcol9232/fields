@@ -29,7 +29,7 @@ public:
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const
     {
-        target.draw(vertices.data(), vertices.size(), sf::Quads);
+        target.draw(vertices.data(), vertices.size(), sf::PrimitiveType::TriangleStrip);
     }
 
     SfLine& operator+=(const SfLine& other) {

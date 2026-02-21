@@ -194,17 +194,16 @@ int main() {
   body_shape.setFillColor(sf::Color::White);
 
   sf::Font font;
-  font.loadFromFile("../UbuntuMono-B.ttf");
-  sf::Text fps_text;
-  fps_text.setFont(font);
-  fps_text.setString("0");
-  fps_text.setPosition(SCREEN_WIDTH - 60.0, 10.0);
+  const bool success = font.openFromFile("../UbuntuMono-B.ttf");
+  if (!success) { throw std::runtime_error("Failed to load font."); }
+
+  sf::Text fps_text(font, "0", 12);
+  fps_text.setPosition(sf::Vector2f(SCREEN_WIDTH - 60.0, 10.0));
   fps_text.setFillColor(sf::Color::Green);
-  fps_text.setCharacterSize(12);
 
   // Mouse
   bool dragging = false;
-  auto mouse_button_held = sf::Mouse::Left;
+  auto mouse_button_held = sf::Mouse::Button::Left;
   sf::Vector2i mouse_start_pos, curr_mouse_press_pos;
   sf::Vertex drag_line[2];
 
@@ -218,10 +217,10 @@ int main() {
   fields::Charge electric_field;
 
   // create the window
-  sf::RenderWindow window(sf::VideoMode(static_cast<int>(SCREEN_WIDTH),
-                                        static_cast<int>(SCREEN_HEIGHT)),
+  sf::RenderWindow window(sf::VideoMode({static_cast<int>(SCREEN_WIDTH),
+                                         static_cast<int>(SCREEN_HEIGHT)}),
                           "Fields");
-  sf::View main_camera(sf::FloatRect(0.f, 0.f, SCREEN_WIDTH, SCREEN_HEIGHT));
+  sf::View main_camera(sf::FloatRect({0.f, 0.f}, {SCREEN_WIDTH, SCREEN_HEIGHT}));
 
   sf::Clock delta_clock;
   float dt = 1.0/60.0;
@@ -237,21 +236,20 @@ int main() {
   //#pragma omp parallel
   //#pragma omp master
   {
-  sf::Event event;
   while (window.isOpen()) {
-    if (window.pollEvent(event)) {
-      if (event.type == sf::Event::Closed) {
-        window.close();
-      }
+    while (const std::optional event = window.pollEvent()) {
+      // Close window: exit
+      if (event->is<sf::Event::Closed>())
+          window.close();
     }
 
     // --- Mouse ---
-    const bool left = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-    const bool right = sf::Mouse::isButtonPressed(sf::Mouse::Right);
+    const bool left = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+    const bool right = sf::Mouse::isButtonPressed(sf::Mouse::Button::Right);
     if (!dragging && (left || right)) {
       dragging = true;
       mouse_start_pos = sf::Mouse::getPosition(window);
-      mouse_button_held = left ? sf::Mouse::Left : sf::Mouse::Right;
+      mouse_button_held = left ? sf::Mouse::Button::Left : sf::Mouse::Button::Right;
     } else if (dragging && !(left || right)) {   // If not pressed, and previously was then spawn a planet.
       dragging = false;
 
@@ -261,7 +259,7 @@ int main() {
                            Vector2f(drag.x, drag.y) * 5.0,
                            SPAWN_RADIUS)
                  .set_mass(tools::volume_of_sphere(SPAWN_RADIUS) * PLANET_DENSITY * 5.0)
-                 .with_charge(mouse_button_held == sf::Mouse::Left)
+                 .with_charge(mouse_button_held == sf::Mouse::Button::Left)
                  .with_gravity()
                  .build();
 
@@ -269,11 +267,11 @@ int main() {
     }
     // -------------
     // --- Keyboard ---
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::R)) {
       start_state(bodies);
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::C)) {
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::C)) {
       bodies.clear();
-    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::F)) {
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scan::F)) {
       renderAcc = !renderAcc;
     }
 
@@ -327,7 +325,7 @@ int main() {
     }
 
     // Draw mouse drag
-    if (dragging) window.draw(drag_line, 2, sf::Lines);
+    if (dragging) window.draw(drag_line, 2, sf::PrimitiveType::Lines);
 
     // --- RENDER STATIC ITEMS LIKE FPS ---
     window.setView(window.getDefaultView());

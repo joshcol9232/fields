@@ -50,11 +50,11 @@ void Body::step(const float dt) {
 }
 
 void Body::draw(sf::RenderWindow& window, sf::CircleShape& circle_mesh) const {
-  circle_mesh.setScale(1.0, 1.0);
-  circle_mesh.setOrigin(1.0, 1.0);
+  circle_mesh.setScale({1.0, 1.0});
+  circle_mesh.setOrigin({1.0, 1.0});
 
-  circle_mesh.setScale(radius_, radius_);
-  circle_mesh.setPosition(x_.x(), x_.y());
+  circle_mesh.setScale({radius_, radius_});
+  circle_mesh.setPosition({x_.x(), x_.y()});
   circle_mesh.setFillColor(color_);
   window.draw(circle_mesh);
 }
